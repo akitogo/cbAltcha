@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Browser specs (Playwright): the real widget against the test harness, both `auto` modes, payload format
+- Weekly *Update ALTCHA widget* workflow: pull request for new widget versions in the same major
+  (after server and browser specs pass), issue for new major versions
+- Bundled widget version recorded in `box.json` (`altchaWidget`)
+- Test harness: `index.cfm` no longer processes the request a second time
+
 ## 1.0.1 – 2026-11-14
 
 - TestBox specs with a ColdBox test harness (`test-harness/`), 38 specs, run by GitHub Actions on every push

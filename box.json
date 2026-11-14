@@ -34,5 +34,6 @@
     },
     "testbox": {
         "runner": "http://127.0.0.1:60455/tests/runner.cfm"
-    }
+    },
+    "altchaWidget": "3.6.0"
 }

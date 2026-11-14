@@ -4,3 +4,6 @@
 /test-harness/coldbox/
 /test-harness/testbox/
 /test-harness/logs/
+/test-harness/e2e/node_modules/
+/test-harness/e2e/test-results/
+/test-harness/e2e/playwright-report/

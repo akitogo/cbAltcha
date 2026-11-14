@@ -4,12 +4,23 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  # Called by update-widget.yml to test a new ALTCHA widget before proposing it
+  workflow_call:
+    inputs:
+      widget_version:
+        description: "ALTCHA widget version to test instead of the bundled one"
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
 
 jobs:
   tests:
-    name: TestBox (BoxLang)
+    name: TestBox + browser (BoxLang)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       # The ColdBox module name is the folder name: the repo is checked out as .../cbAltcha
       - uses: actions/checkout@v7
@@ -19,9 +30,17 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
       - uses: Ortus-Solutions/setup-commandbox@v2.0.1
         with:
           warmup: true
+
+      - name: Use ALTCHA widget ${{ inputs.widget_version }}
+        if: ${{ inputs.widget_version }}
+        run: .github/scripts/update-widget.sh "${{ inputs.widget_version }}"
 
       - name: Install test harness (ColdBox, TestBox)
         working-directory: test-harness
@@ -32,8 +51,18 @@ jobs:
           box server start
           curl --retry 30 --retry-delay 2 --retry-all-errors -fsS -o /dev/null http://127.0.0.1:60455/
 
-      - name: Run specs
+      - name: TestBox specs (server side)
         run: box testbox run
+
+      - name: Install browser specs (Playwright, Chromium)
+        working-directory: test-harness/e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Browser specs (real widget against the harness)
+        working-directory: test-harness/e2e
+        run: npx playwright test
 
       - name: Server log
         if: failure()

@@ -1,0 +1,118 @@
+name: Update ALTCHA widget
+
+# Keeps includes/ in line with the altcha npm package:
+# - same major version: tests the new widget (server + browser specs), then opens a pull request
+# - new major version: opens an issue (attributes or protocol may change, needs a human)
+on:
+  schedule:
+    - cron: "17 6 * * 1"   # Mondays 06:17 UTC
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Widget version (default: latest on npm)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Test only, open no pull request or issue"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      action: ${{ steps.decide.outputs.action }}
+      current: ${{ steps.decide.outputs.current }}
+      latest: ${{ steps.decide.outputs.latest }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - id: decide
+        run: |
+          current="$(jq -r .altchaWidget box.json)"
+          latest="${{ inputs.version }}"
+          [ -n "$latest" ] || latest="$(npm view altcha version)"
+          if [ "$latest" = "$current" ]; then action=none
+          elif [ "${latest%%.*}" != "${current%%.*}" ]; then action=major
+          else action=update; fi
+          echo "bundled $current, candidate $latest: $action" | tee -a "$GITHUB_STEP_SUMMARY"
+          { echo "action=$action"; echo "current=$current"; echo "latest=$latest"; } >> "$GITHUB_OUTPUT"
+
+  test:
+    needs: check
+    if: needs.check.outputs.action == 'update'
+    uses: ./.github/workflows/tests.yml
+    with:
+      widget_version: ${{ needs.check.outputs.latest }}
+
+  pull-request:
+    needs: [check, test]
+    if: needs.check.outputs.action == 'update' && !inputs.dry_run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT: ${{ needs.check.outputs.current }}
+      LATEST: ${{ needs.check.outputs.latest }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - run: |
+          branch="widget/altcha-$LATEST"
+          if [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ]; then
+            echo "Pull request for $branch already open" | tee -a "$GITHUB_STEP_SUMMARY"; exit 0
+          fi
+          .github/scripts/update-widget.sh "$LATEST"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git commit -am "ALTCHA widget $CURRENT → $LATEST"
+          git push --force origin "$branch"
+          run_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          gh pr create --base main --head "$branch" \
+            --title "ALTCHA widget $CURRENT → $LATEST" \
+            --body "Updates the bundled ALTCHA widget (\`includes/\`) from $CURRENT to $LATEST.
+
+          - Release notes: https://github.com/altcha-org/altcha/releases/tag/v$LATEST
+          - Server and browser specs passed with $LATEST before this pull request was opened: $run_url
+            (pull requests opened by GitHub Actions do not trigger the Tests workflow themselves)
+
+          After merging: bump the cbAltcha version, tag, and update projects to the new tag."
+
+  major:
+    needs: check
+    if: needs.check.outputs.action == 'major' && !inputs.dry_run
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CURRENT: ${{ needs.check.outputs.current }}
+      LATEST: ${{ needs.check.outputs.latest }}
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+      - run: |
+          title="ALTCHA widget $LATEST: new major version"
+          if [ -n "$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$title\" in:title" --json number --jq '.[].number')" ]; then
+            echo "Issue already open" | tee -a "$GITHUB_STEP_SUMMARY"; exit 0
+          fi
+          lib="$(npm view altcha-lib version)"
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "ALTCHA widget $LATEST is out; cbAltcha bundles $CURRENT.
+
+          A new major version can change widget attributes, the JavaScript API or the challenge protocol, so it is not updated automatically.
+
+          - Release notes: https://github.com/altcha-org/altcha/releases/tag/v$LATEST
+          - Server library (protocol reference): altcha-lib $lib, https://github.com/altcha-org/altcha-lib/releases
+
+          To try it: run the *Update ALTCHA widget* workflow manually with version $LATEST and *dry run*; the browser specs show what breaks."

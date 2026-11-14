@@ -8,7 +8,7 @@ challenge, the visitor's browser solves it in the background (about 1–3 second
 the solution before your handler runs. No third-party service is involved (see [Privacy](#privacy)).
 
 - `GET /altcha/challenge`: signed challenge for the widget
-- `GET /altcha/widget/altcha.js`: the ALTCHA widget (v3.6.0, MIT), served by the module
+- `GET /altcha/widget/altcha.js`: the ALTCHA widget (v3, MIT, exact version in `box.json` → `altchaWidget`), served by the module
 - `AltchaGuard` interceptor: every protected request (POST, PUT, PATCH, DELETE by default) needs a valid
   solution in the `altcha` field, otherwise it is answered with 403 and your event never runs
 
@@ -174,6 +174,32 @@ box run-script test:stop
   widget delivery
 
 The harness solves challenges in the specs with low difficulty settings (`cost` 10, counter 5–15).
+
+Browser specs (`test-harness/e2e/`, Playwright with Chromium) load a test form (`/form`) with the real
+widget and check that it solves cbAltcha's challenges, posts the payload format cbAltcha verifies (in
+`auto="onfocus"` and `auto="onsubmit"` mode), loads the German texts, and that a post without a solution
+is rejected. With the test server running:
+
+```bash
+cd test-harness/e2e
+npm ci && npx playwright install chromium
+npx playwright test
+```
+
+GitHub Actions runs both suites on every push and pull request.
+
+## Widget updates
+
+The bundled widget version is recorded in `box.json` (`altchaWidget`). The *Update ALTCHA widget*
+workflow checks npm every Monday:
+
+- **Same major version** (e.g. 3.6 → 3.7): it swaps in the new widget, runs the server and browser specs
+  with it, and opens a pull request if they pass. Merge it, bump the version, tag a release.
+- **New major version** (e.g. 4.0): it opens an issue instead. Majors can change widget attributes, the
+  JavaScript API or the challenge protocol, so they need a human look.
+
+Run it manually (*Actions → Update ALTCHA widget → Run workflow*) to try a specific version; with
+*dry run* it only tests. Locally: `.github/scripts/update-widget.sh 3.7.0`.
 
 ## License
 
