@@ -4,8 +4,8 @@
     "slug": "cbAltcha",
     "type": "modules",
     "author": "Gunnar Lieb",
-    "shortDescription": "ALTCHA proof-of-work spam protection for ColdBox: signed challenges, verification interceptor and the ALTCHA widget, no third-party service",
-    "keywords": "altcha,captcha,spam,proof-of-work,coldbox,module,forms",
+    "shortDescription": "ALTCHA proof-of-work spam protection for ColdBox: privacy-friendly, GDPR-friendly reCAPTCHA alternative without third-party services or cookies",
+    "keywords": "altcha,captcha,recaptcha-alternative,gdpr,privacy,spam,proof-of-work,coldbox,module,forms",
     "license": [
         {
             "type": "MIT",

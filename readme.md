@@ -2,9 +2,10 @@
 
 [![Tests](https://github.com/akitogo/cbAltcha/actions/workflows/tests.yml/badge.svg)](https://github.com/akitogo/cbAltcha/actions/workflows/tests.yml)
 
-[ALTCHA](https://altcha.org) proof-of-work spam protection for ColdBox. No third-party service, no
-cookies, no tracking: the server signs a challenge, the visitor's browser solves it in the background
-(about 1–3 seconds), the server verifies the solution before your handler runs.
+[ALTCHA](https://altcha.org) proof-of-work spam protection for ColdBox: a privacy-friendly,
+GDPR-friendly alternative to Google reCAPTCHA, hCaptcha or Cloudflare Turnstile. The server signs a
+challenge, the visitor's browser solves it in the background (about 1–3 seconds), the server verifies
+the solution before your handler runs. No third-party service is involved (see [Privacy](#privacy)).
 
 - `GET /altcha/challenge`: signed challenge for the widget
 - `GET /altcha/widget/altcha.js`: the ALTCHA widget (v3.6.0, MIT), served by the module
@@ -12,6 +13,24 @@ cookies, no tracking: the server signs a challenge, the visitor's browser solves
   solution in the `altcha` field, otherwise it is answered with 403 and your event never runs
 
 Works on BoxLang (tested with the ColdBox 8 / BoxLang 1.x stack); written in plain CFML script.
+
+## Privacy
+
+What happens with visitors' data, for your privacy policy and data protection assessment:
+
+- **No third-party requests.** The widget script, its translations and the challenges come from your own
+  server (`/altcha/...`). Nothing is loaded from or sent to altcha.org, Google or any other service; the
+  "Protected by ALTCHA" line in the widget is a plain link.
+- **No cookies, no local storage.** The widget does not set cookies (unless you configure its `setCookie`
+  option); the module sets none.
+- **No tracking, no fingerprinting, no profiling.** Spam protection works through computation (proof of
+  work), not by observing the visitor.
+- **No personal data stored.** Challenges are stateless (signed). For replay protection the module keeps
+  only the challenge signature in CacheBox until the challenge expires: no IP address, no form data.
+
+That is why, unlike reCAPTCHA, it needs no consent banner entry and no data processing agreement with a
+third party. Whether a whole site is GDPR compliant depends on more than its captcha: this describes
+what cbAltcha does, it is not legal advice.
 
 ## Install
 
