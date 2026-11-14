@@ -1,3 +1,6 @@
 .DS_Store
 /testbox/
 /tests/results/
+/test-harness/coldbox/
+/test-harness/testbox/
+/test-harness/logs/

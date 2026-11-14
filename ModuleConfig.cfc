@@ -18,7 +18,7 @@ component {
 
 	this.title          = "cbAltcha";
 	this.description    = "ALTCHA proof-of-work protection for form posts";
-	this.version        = "1.0.0";
+	this.version        = "1.0.1";
 	this.author         = "Gunnar Lieb";
 	this.entryPoint     = "altcha";
 	this.modelNamespace = "cbAltcha";

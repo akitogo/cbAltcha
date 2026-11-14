@@ -1,0 +1,40 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    name: TestBox (BoxLang)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # The ColdBox module name is the folder name: the repo is checked out as .../cbAltcha
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: Ortus-Solutions/setup-commandbox@v2.0.1
+        with:
+          warmup: true
+
+      - name: Install test harness (ColdBox, TestBox)
+        working-directory: test-harness
+        run: box install
+
+      - name: Start test server
+        run: |
+          box server start
+          curl --retry 30 --retry-delay 2 --retry-all-errors -fsS -o /dev/null http://127.0.0.1:60455/
+
+      - name: Run specs
+        run: box testbox run
+
+      - name: Server log
+        if: failure()
+        run: box server log

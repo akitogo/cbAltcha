@@ -1,5 +1,7 @@
 # cbAltcha
 
+[![Tests](https://github.com/akitogo/cbAltcha/actions/workflows/tests.yml/badge.svg)](https://github.com/akitogo/cbAltcha/actions/workflows/tests.yml)
+
 [ALTCHA](https://altcha.org) proof-of-work spam protection for ColdBox. No third-party service, no
 cookies, no tracking: the server signs a challenge, the visitor's browser solves it in the background
 (about 1–3 seconds), the server verifies the solution before your handler runs.
@@ -133,6 +135,26 @@ The ALTCHA v2 protocol as implemented by altcha-lib 2.x, in deterministic mode w
 
 Verification costs two HMACs; the key derivation happens once per challenge on creation (~20–40 ms).
 Java's `PBKDF2WithHmac*` cannot take binary passwords, so PBKDF2 is implemented on `javax.crypto.Mac`.
+
+## Tests
+
+The specs live in `test-harness/`, a minimal ColdBox app that loads the module from the package root
+(the package folder must be named `cbAltcha`). It runs on BoxLang with `bx-compat-cfml`.
+
+```bash
+box run-script test:setup   # installs ColdBox + TestBox into test-harness/, starts the server on :60455
+box run-script test         # testbox run
+box run-script test:stop
+```
+
+- `tests/specs/unit/AltchaServiceSpec.cfc`: key derivation against reference values from Node's crypto
+  and RFC 7914, canonical JSON and HMAC signing as altcha-lib does it, challenge creation, and every
+  verification outcome (valid, replayed, missing, malformed, expired, tampered, wrong secret, wrong solution)
+- `tests/specs/integration/AltchaGuardSpec.cfc`: real requests through the interceptor and routes:
+  protected and excluded events, HTTP methods, include rules, `enabled`, JSON and HTML rejections,
+  widget delivery
+
+The harness solves challenges in the specs with low difficulty settings (`cost` 10, counter 5–15).
 
 ## License
 

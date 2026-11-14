@@ -1,0 +1,22 @@
+{
+    "name":"cbAltcha-tests",
+    "web":{
+        "host":"127.0.0.1",
+        "http":{
+            "port":60455
+        },
+        "webroot":"test-harness",
+        "rewrites":{
+            "enable":true
+        }
+    },
+    "app":{
+        "cfengine":"boxlang@be"
+    },
+    "openBrowser":false,
+    "scripts":{
+        "onServerInstall":[
+            "install bx-compat-cfml,bx-esapi"
+        ]
+    }
+}

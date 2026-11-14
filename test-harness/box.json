@@ -1,0 +1,15 @@
+{
+    "name":"cbAltcha test harness",
+    "version":"1.0.0",
+    "private":true,
+    "dependencies":{
+        "coldbox":"^8.0.0"
+    },
+    "devDependencies":{
+        "testbox":"^6.0.0"
+    },
+    "installPaths":{
+        "coldbox":"coldbox/",
+        "testbox":"testbox/"
+    }
+}

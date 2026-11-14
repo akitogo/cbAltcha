@@ -1,6 +1,6 @@
 {
     "name": "cbAltcha",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "slug": "cbAltcha",
     "type": "modules",
     "author": "Gunnar Lieb",
@@ -16,6 +16,8 @@
     "devDependencies": {},
     "ignore": [
         "**/.*",
+        "test-harness/**",
+        "server.json",
         "tests/**"
     ],
     "homepage": "https://github.com/akitogo/cbAltcha",
@@ -24,5 +26,13 @@
         "URL": "https://github.com/akitogo/cbAltcha"
     },
     "bugs": "https://github.com/akitogo/cbAltcha/issues",
-    "location": "https://github.com/akitogo/cbAltcha/archive/refs/tags/v1.0.0.zip"
+    "location": "https://github.com/akitogo/cbAltcha/archive/refs/tags/v1.0.1.zip",
+    "scripts": {
+        "test:setup": "cd test-harness && install && cd .. && server start",
+        "test": "testbox run",
+        "test:stop": "server stop"
+    },
+    "testbox": {
+        "runner": "http://127.0.0.1:60455/tests/runner.cfm"
+    }
 }

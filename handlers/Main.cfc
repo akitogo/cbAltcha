@@ -39,8 +39,10 @@ component {
 	 */
 	function rejected( event, rc, prc ){
 		var reason = prc.altcha.reason ?: "missing";
-		var wantsJSON = findNoCase( "json", event.getHTTPHeader( "Accept", "" ) ) ||
-			len( event.getHTTPHeader( "X-Requested-With", "" ) );
+		// one-argument getHTTPHeader(): same result, and matches ColdBox's mocked headers in tests
+		var accept    = event.getHTTPHeader( "Accept" ) ?: "";
+		var xrw       = event.getHTTPHeader( "X-Requested-With" ) ?: "";
+		var wantsJSON = findNoCase( "json", accept ) || len( xrw );
 		if ( wantsJSON ) {
 			return event.renderData(
 				type       = "json",
@@ -55,6 +57,14 @@ component {
 				"<p>Die Spam-Prüfung ist fehlgeschlagen. Bitte geht zurück und sendet das Formular erneut.</p>" &
 				"<p>The spam check failed. Please go back and send the form again.</p>"
 		);
+	}
+
+	/**
+	 * Wrong HTTP method on a module route: 405 instead of an exception
+	 */
+	function onInvalidHTTPMethod( event, rc, prc, faultAction, eventArguments ){
+		arguments.event.setHTTPHeader( name = "Allow", value = "GET" );
+		arguments.event.renderData( type = "plain", data = "Method Not Allowed", statusCode = 405 );
 	}
 
 	private function sendScript( required event, required string file ){
