@@ -1,0 +1,28 @@
+{
+    "name": "cbAltcha",
+    "version": "1.0.0",
+    "slug": "cbAltcha",
+    "type": "modules",
+    "author": "Gunnar Lieb",
+    "shortDescription": "ALTCHA proof-of-work spam protection for ColdBox: signed challenges, verification interceptor and the ALTCHA widget, no third-party service",
+    "keywords": "altcha,captcha,spam,proof-of-work,coldbox,module,forms",
+    "license": [
+        {
+            "type": "MIT",
+            "URL": "https://opensource.org/licenses/MIT"
+        }
+    ],
+    "dependencies": {},
+    "devDependencies": {},
+    "ignore": [
+        "**/.*",
+        "tests/**"
+    ],
+    "homepage": "https://github.com/akitogo/cbAltcha",
+    "repository": {
+        "type": "git",
+        "URL": "https://github.com/akitogo/cbAltcha"
+    },
+    "bugs": "https://github.com/akitogo/cbAltcha/issues",
+    "location": "https://github.com/akitogo/cbAltcha/archive/refs/tags/v1.0.0.zip"
+}
