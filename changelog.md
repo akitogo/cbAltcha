@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- ALTCHA widget 3.6.0 → 3.7.0 (https://github.com/altcha-org/altcha/releases/tag/v3.7.0)
 - Browser specs (Playwright): the real widget against the test harness, both `auto` modes, payload format
 - Weekly *Update ALTCHA widget* workflow: pull request for new widget versions in the same major
   (after server and browser specs pass), issue for new major versions
